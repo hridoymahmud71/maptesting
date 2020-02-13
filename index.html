@@ -24,7 +24,15 @@
         }
     </style>
     <div id="map"></div>
+    <div id="info" given_lat="23.00" given_long="90.00" style="display:none"></div>
     <script>
+
+        var info_div = document.getElementById("info");
+        var given_lat = parseFloat(info_div.getAttribute('given_lat'));
+        var given_long = parseFloat(info_div.getAttribute('given_long'));
+
+        var dest_lat = given_lat;
+        var dest_long = given_long;
 
         var mapOptions = {
         maxZoom: 18,
@@ -42,6 +50,12 @@
 
             map.locate({setView: true});
 
+            navigator.geolocation.getCurrentPosition(function(location) {
+                dest_lat = location.coords.latitude;
+                dest_long = location.coords.longitud;         
+            
+            });
+
 
             // ---------------------------------------------------------------
 
@@ -52,7 +66,17 @@
             return btn;
             }
 
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(given_lat, given_long),
+                    L.latLng(90, 23)
+                ],
+                routeWhileDragging: true
+            }).addTo(map);
+            
+
             map.on('click', function(e) {
+
                 var container = L.DomUtil.create('div'),
                 startBtn = createButton('Start from this location', container),
                 destBtn = createButton('Go to this location', container);
