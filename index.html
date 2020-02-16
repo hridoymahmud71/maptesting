@@ -88,11 +88,7 @@
         email: null,
     }
 
-    function createButton(text, container) {
-        var button = document.createElement("button");
-        button.innerHTML = text;
-        container.appendChild(button);
-    }
+
 
 
     var my_map = function (toLat, toLong) {
@@ -132,37 +128,36 @@
             })
             .addTo(map);
 
-
         // ---------------------------------------------------------------
 
-        /*function createButton(label, container) {
+        function createButton(label, container) {
         var btn = L.DomUtil.create('button', '', container);
         btn.setAttribute('type', 'button');
         btn.innerHTML = label;
         return btn;
-        }*/
+        }
 
 
         map.on('click', function (e) {
 
             var container = L.DomUtil.create('div'),
-                startBtn = createButton('From', container),
-                destBtn = createButton('To', container);
+                //startBtn = createButton('From', container),
+                destBtn = createButton('Click For a destination', container);
 
-            L.popup()
-                .setContent(container)
-                .setLatLng(e.latlng)
-                .openOn(map);
-
-            L.DomEvent.on(startBtn, 'click', function () {
+            /*L.DomEvent.on(startBtn, 'click', function () {
                 L.Routing.control.spliceWaypoints(0, 1, e.latlng);
                 map.closePopup();
-            });
+            });*/
 
             L.DomEvent.on(destBtn, 'click', function () {
                 L.Routing.control.spliceWaypoints(L.Routing.control.getWaypoints().length - 1, 1, e.latlng);
                 map.closePopup();
             });
+
+            L.popup()
+                .setContent(container)
+                .setLatLng(e.latlng)
+                .openOn(map);
         });
 
 
