@@ -17,157 +17,184 @@
     <script src="routing/dist/leaflet-routing-machine.js"></script>
     <script src="Control.OSMGeocoder/Control.OSMGeocoder.js"></script>
 
-</head>
-
-<body>
     <style>
-        #map {
+        .bg {
+            background: #999999;
+        }
+
+
+        .card {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            width: 75%;
+            left: 12%;
+            top: 10%;
+            position: absolute;
+            height: 532px;
+            border-radius: 5px;
+            background: ghostwhite;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+
+        .map {
+            width: 100%;
             height: 500px;
-            width:90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #routing {
+            padding: 2px 16px;
+            border-bottom: #888888 solid;
         }
     </style>
+</head>
+
+<body class="bg">
+
+<div class="card">
     <div id="routing"></div>
-    <div id="map"><img src="mapholderbg.png" alt="Map Image"></div>
+    <div id="map" class="map"><img src="mapholderbg.png" alt="Map Image"></div>
     <div id="info" fromLat="23.75" fromLong="90.44" style="display:none"></div>
-    <script>
+</div>
 
-        var info_div = document.getElementById("info");
-        var routing_div = document.getElementById("routing");
-        var fromLat = parseFloat(info_div.getAttribute('fromLat'));
-        var fromLong = parseFloat(info_div.getAttribute('fromLong'));
+<script>
 
-        var toLat = fromLat;
-        var toLong = fromLong;
+    var info_div = document.getElementById("info");
+    var routing_div = document.getElementById("routing");
+    var fromLat = parseFloat(info_div.getAttribute('fromLat'));
+    var fromLong = parseFloat(info_div.getAttribute('fromLong'));
 
-        var mapOptions = {
+    var toLat = fromLat;
+    var toLong = fromLong;
+
+    var mapOptions = {
         maxZoom: 16,
-        zoomControl: false,
-        worldCopyJump: true 
-        }
+        minZoom:11,
+        zoomControl: true,
+        worldCopyJump: true
+    }
 
-        var geocoderOption = {
-            collapsed: true, /* Whether its collapsed or not */
-            position: 'topleft', /* The position of the control */
-            text: 'Find', /* The text of the submit button */
-            placeholder: 'Find your destination', /* The text of the search input placeholder */
-            bounds: null, /* a L.LatLngBounds object to limit the results to */
-            email: null,
-        }
+    var geocoderOption = {
+        collapsed: true, /* Whether its collapsed or not */
+        position: 'topleft', /* The position of the control */
+        text: 'Find', /* The text of the submit button */
+        placeholder: 'Find your destination', /* The text of the search input placeholder */
+        bounds: null, /* a L.LatLngBounds object to limit the results to */
+        email: null,
+    }
 
-        function createButton(text,container){
-            var button = document.createElement("button");
-            button.innerHTML = text;
-            container.appendChild(button);
-        }
+    function createButton(text, container) {
+        var button = document.createElement("button");
+        button.innerHTML = text;
+        container.appendChild(button);
+    }
 
 
-        var my_map = function (toLat,toLong) {
-            var map_id = 'map';
-            var map = L.map(map_id,mapOptions);
+    var my_map = function (toLat, toLong) {
+        var map_id = 'map';
+        var map = L.map(map_id, mapOptions);
 
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://github.com/hridoymahmud71/">Hridoy Mahmud</a> with the help of <a href="https://www.liedman.net/leaflet-routing-machine">of leaflet routing machine</a> '
-            }).addTo(map);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://github.com/hridoymahmud71/">Hridoy Mahmud</a> with the help of <a href="https://www.liedman.net/leaflet-routing-machine">of leaflet routing machine</a> '
+        }).addTo(map);
 
-            map.locate({setView: true});
+        map.locate({setView: true});
 
-            var osmGeocoder = new L.Control.OSMGeocoder({placeholder: 'Search location...'});
-            map.addControl(osmGeocoder);
+        var osmGeocoder = new L.Control.OSMGeocoder({placeholder: 'Search location...'});
+        map.addControl(osmGeocoder);
 
-            var control =  L.Routing.control({
-                waypoints: [
-                    L.latLng(fromLat,fromLong),
-                    L.latLng(toLat,toLong)
-                ],
-                routeWhileDragging: true,
-                show: true,
-                autoRoute: true,
-                routeWhileDragging: true
+        var control = L.Routing.control({
+            waypoints: [
+                L.latLng(fromLat, fromLong),
+                L.latLng(toLat, toLong)
+            ],
+            routeWhileDragging: true,
+            show: true,
+            autoRoute: true,
+            routeWhileDragging: true
+        })
+            .on('routingstart', function (e) {
+                routing_div.innerHTML = "Finding the best route for you";
             })
-                .on('routingstart',function (e) {
-                    routing_div.innerHTML  = "Finding the best route for you";
-                })
-                .on('routingerror', function (e) {
-                    console.log(e);
-                    routing_div.innerHTML  = "Route finding error";
-                })
-                .on('routesfound', function(e) {
-                    console.log(e.routes)
+            .on('routingerror', function (e) {
+                console.log(e);
+                routing_div.innerHTML = "Route finding error";
+            })
+            .on('routesfound', function (e) {
+                console.log(e.routes)
                 var routes = e.routes;
-                    routing_div.innerHTML = 'Found ' + routes.length + ' route(s).';
+                routing_div.innerHTML = 'Found ' + routes.length + ' route(s).';
             })
-                .addTo(map);
+            .addTo(map);
 
 
+        // ---------------------------------------------------------------
 
-            // ---------------------------------------------------------------
-
-            /*function createButton(label, container) {
-            var btn = L.DomUtil.create('button', '', container);
-            btn.setAttribute('type', 'button');
-            btn.innerHTML = label;
-            return btn;
-            }*/
-
+        /*function createButton(label, container) {
+        var btn = L.DomUtil.create('button', '', container);
+        btn.setAttribute('type', 'button');
+        btn.innerHTML = label;
+        return btn;
+        }*/
 
 
+        map.on('click', function (e) {
 
-            map.on('click', function(e) {
-
-                var container = L.DomUtil.create('div'),
+            var container = L.DomUtil.create('div'),
                 startBtn = createButton('From', container),
                 destBtn = createButton('To', container);
 
-                L.popup()
-                    .setContent(container)
-                    .setLatLng(e.latlng)
-                    .openOn(map);
+            L.popup()
+                .setContent(container)
+                .setLatLng(e.latlng)
+                .openOn(map);
 
-                    L.DomEvent.on(startBtn, 'click', function() {
-                        L.Routing.control.spliceWaypoints(0, 1, e.latlng);
-                        map.closePopup();
-                    });
-
-                    L.DomEvent.on(destBtn, 'click', function() {
-                        L.Routing.control.spliceWaypoints( L.Routing.control.getWaypoints().length - 1, 1, e.latlng);
-                        map.closePopup();
-                    });
-            });           
-
-            
-
-            var ReversablePlan = L.Routing.Plan.extend({
-                createGeocoders: function() {
-                    var container = L.Routing.Plan.prototype.createGeocoders.call(this),
-                        reverseButton = createButton('↑↓', container);
-                    return container;
-                }
+            L.DomEvent.on(startBtn, 'click', function () {
+                L.Routing.control.spliceWaypoints(0, 1, e.latlng);
+                map.closePopup();
             });
 
-
-            // ------------------------------------------------------------------
-
-            return map;
-        }
-
-        //----------------------------------------------------------
-
-        //my_map();
-
-        navigator.geolocation.getCurrentPosition(function(location) {
-            if(location !== null &&  location !== undefined)
-                toLat = location.coords.latitude;
-                toLong = location.coords.longitude;
-            my_map(toLat,toLong)
-        },function () {
-            my_map(toLat,toLong);
+            L.DomEvent.on(destBtn, 'click', function () {
+                L.Routing.control.spliceWaypoints(L.Routing.control.getWaypoints().length - 1, 1, e.latlng);
+                map.closePopup();
+            });
         });
 
-        
+
+        var ReversablePlan = L.Routing.Plan.extend({
+            createGeocoders: function () {
+                var container = L.Routing.Plan.prototype.createGeocoders.call(this),
+                    reverseButton = createButton('↑↓', container);
+                return container;
+            }
+        });
 
 
+        // ------------------------------------------------------------------
 
-    </script>
+        return map;
+    }
+
+    //----------------------------------------------------------
+
+    //my_map();
+
+    navigator.geolocation.getCurrentPosition(function (location) {
+        if (location !== null && location !== undefined)
+            toLat = location.coords.latitude;
+        toLong = location.coords.longitude;
+        my_map(toLat, toLong)
+    }, function () {
+        my_map(toLat, toLong);
+    });
+
+
+</script>
 </body>
 
 
