@@ -11,8 +11,11 @@
 
     <link rel="stylesheet" href="leaflet.css"/>
     <link rel="stylesheet" href="routing/dist/leaflet-routing-machine.css"/>
+    <link rel="stylesheet" href="Control.OSMGeocoder/Control.OSMGeocoder.css"/>
+
     <script src="leaflet.js"></script>
     <script src="routing/dist/leaflet-routing-machine.js"></script>
+    <script src="Control.OSMGeocoder/Control.OSMGeocoder.js"></script>
 
 </head>
 
@@ -42,6 +45,15 @@
         worldCopyJump: true 
         }
 
+        var geocoderOption = {
+            collapsed: true, /* Whether its collapsed or not */
+            position: 'topleft', /* The position of the control */
+            text: 'Find', /* The text of the submit button */
+            placeholder: 'Find your destination', /* The text of the search input placeholder */
+            bounds: null, /* a L.LatLngBounds object to limit the results to */
+            email: null,
+        }
+
         function createButton(text,container){
             var button = document.createElement("button");
             button.innerHTML = text;
@@ -59,6 +71,8 @@
 
             map.locate({setView: true});
 
+            var osmGeocoder = new L.Control.OSMGeocoder({placeholder: 'Search location...'});
+            map.addControl(osmGeocoder);
 
             var control =  L.Routing.control({
                 waypoints: [
@@ -78,6 +92,7 @@
                     routing_div.innerHTML  = "Route finding error";
                 })
                 .on('routesfound', function(e) {
+                    console.log(e.routes)
                 var routes = e.routes;
                     routing_div.innerHTML = 'Found ' + routes.length + ' route(s).';
             })
