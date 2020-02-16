@@ -19,67 +19,89 @@
 <body>
     <style>
         #map {
-            height: 450px;
-            width:900px;
+            height: 500px;
+            width:90%;
         }
     </style>
-    <div id="map"></div>
-    <div id="info" given_lat="23.00" given_long="90.00" style="display:none"></div>
+    <div id="routing"></div>
+    <div id="map"><img src="mapholderbg.png" alt="Map Image"></div>
+    <div id="info" fromLat="23.75" fromLong="90.44" style="display:none"></div>
     <script>
 
         var info_div = document.getElementById("info");
-        var given_lat = parseFloat(info_div.getAttribute('given_lat'));
-        var given_long = parseFloat(info_div.getAttribute('given_long'));
+        var routing_div = document.getElementById("routing");
+        var fromLat = parseFloat(info_div.getAttribute('fromLat'));
+        var fromLong = parseFloat(info_div.getAttribute('fromLong'));
 
-        var dest_lat = given_lat;
-        var dest_long = given_long;
+        var toLat = fromLat;
+        var toLong = fromLong;
 
         var mapOptions = {
-        maxZoom: 18,
+        maxZoom: 16,
         zoomControl: false,
         worldCopyJump: true 
         }
 
-        var my_map = function () {
+        function createButton(text,container){
+            var button = document.createElement("button");
+            button.innerHTML = text;
+            container.appendChild(button);
+        }
+
+
+        var my_map = function (toLat,toLong) {
             var map_id = 'map';
             var map = L.map(map_id,mapOptions);
 
             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://github.com/hridoymahmud71/">Hridoy Mahmud</a> with the help of <a href="https://www.liedman.net/leaflet-routing-machine">of leaflet routing machine</a> '
             }).addTo(map);
 
             map.locate({setView: true});
 
-            navigator.geolocation.getCurrentPosition(function(location) {
-                dest_lat = location.coords.latitude;
-                dest_long = location.coords.longitud;         
-            
-            });
+
+            var control =  L.Routing.control({
+                waypoints: [
+                    L.latLng(fromLat,fromLong),
+                    L.latLng(toLat,toLong)
+                ],
+                routeWhileDragging: true,
+                show: true,
+                autoRoute: true,
+                routeWhileDragging: true
+            })
+                .on('routingstart',function (e) {
+                    routing_div.innerHTML  = "Finding the best route for you";
+                })
+                .on('routingerror', function (e) {
+                    console.log(e);
+                    routing_div.innerHTML  = "Route finding error";
+                })
+                .on('routesfound', function(e) {
+                var routes = e.routes;
+                    routing_div.innerHTML = 'Found ' + routes.length + ' route(s).';
+            })
+                .addTo(map);
+
 
 
             // ---------------------------------------------------------------
 
-            function createButton(label, container) {
+            /*function createButton(label, container) {
             var btn = L.DomUtil.create('button', '', container);
             btn.setAttribute('type', 'button');
             btn.innerHTML = label;
             return btn;
-            }
+            }*/
 
-            L.Routing.control({
-                waypoints: [
-                    L.latLng(24.00, 91.00),
-                    L.latLng(23.00, 90.00)
-                ],
-                routeWhileDragging: true
-            }).addTo(map);
-            
+
+
 
             map.on('click', function(e) {
 
                 var container = L.DomUtil.create('div'),
-                startBtn = createButton('Start from this location', container),
-                destBtn = createButton('Go to this location', container);
+                startBtn = createButton('From', container),
+                destBtn = createButton('To', container);
 
                 L.popup()
                     .setContent(container)
@@ -88,12 +110,12 @@
 
                     L.DomEvent.on(startBtn, 'click', function() {
                         L.Routing.control.spliceWaypoints(0, 1, e.latlng);
-                        map1.closePopup();
+                        map.closePopup();
                     });
 
                     L.DomEvent.on(destBtn, 'click', function() {
                         L.Routing.control.spliceWaypoints( L.Routing.control.getWaypoints().length - 1, 1, e.latlng);
-                        map1.closePopup();
+                        map.closePopup();
                     });
             });           
 
@@ -107,17 +129,25 @@
                 }
             });
 
-            
+
             // ------------------------------------------------------------------
 
             return map;
         }
 
-        my_map();
+        //----------------------------------------------------------
 
-        
+        //my_map();
 
-        
+        navigator.geolocation.getCurrentPosition(function(location) {
+            if(location !== null &&  location !== undefined)
+                toLat = location.coords.latitude;
+                toLong = location.coords.longitude;
+            my_map(toLat,toLong)
+        },function () {
+            my_map(toLat,toLong);
+        });
+
         
 
 
