@@ -58,8 +58,8 @@
 
 <div class="card">
     <div id="routing"></div>
-    <div id="map" class="map"><img src="mapholderbg.png" alt="Map Image"></div>
-    <div id="info" fromLat="23.75" fromLong="90.44" style="display:none"></div>
+    <div id="map" class="map"><img src="images/mapholderbg.png" alt="Map Image"></div>
+    <div id="info" fromLat="23.778385" fromLong="90.379516" style="display:none"></div>
 </div>
 
 <script>
@@ -74,7 +74,7 @@
 
     var mapOptions = {
         maxZoom: 16,
-        minZoom:11,
+        minZoom: 11,
         zoomControl: true,
         worldCopyJump: true
     }
@@ -89,14 +89,12 @@
     }
 
 
-
-
     var my_map = function (toLat, toLong) {
         var map_id = 'map';
         var map = L.map(map_id, mapOptions);
 
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://github.com/hridoymahmud71/">Hridoy Mahmud</a> with the help of <a href="https://www.liedman.net/leaflet-routing-machine">of leaflet routing machine</a> '
+            attribution: '&copy; <a href="https://github.com/hridoymahmud71/">Hridoy Mahmud</a> with the help of <a href="https://www.liedman.net/leaflet-routing-machine">leaflet routing machine</a> '
         }).addTo(map);
 
         map.locate({setView: true});
@@ -115,26 +113,34 @@
             routeWhileDragging: true
         })
             .on('routingstart', function (e) {
-                routing_div.innerHTML = "Finding the best route for you";
+
+
+                    finding_text_timer();
+
+
             })
             .on('routingerror', function (e) {
+                finding_text_timer_stop();
                 console.log(e);
                 routing_div.innerHTML = "Route finding error";
             })
             .on('routesfound', function (e) {
-                console.log(e.routes)
+                finding_text_timer_stop();
+                console.log(e.routes);
                 var routes = e.routes;
-                routing_div.innerHTML = 'Found ' + routes.length + ' route(s).';
+                var distance = Math.floor(e.routes[0].summary.totalDistance)/1000;
+                var approxtime  = secondsToHms(e.routes[0].summary.totalTime);
+                routing_div.innerHTML = 'Route found.Distance is '+ distance.toFixed(2) +' km away.' + ' It will take approximately ' + approxtime + ' to reach';
             })
             .addTo(map);
 
         // ---------------------------------------------------------------
 
         function createButton(label, container) {
-        var btn = L.DomUtil.create('button', '', container);
-        btn.setAttribute('type', 'button');
-        btn.innerHTML = label;
-        return btn;
+            var btn = L.DomUtil.create('button', '', container);
+            btn.setAttribute('type', 'button');
+            btn.innerHTML = label;
+            return btn;
         }
 
 
@@ -182,11 +188,50 @@
     navigator.geolocation.getCurrentPosition(function (location) {
         if (location !== null && location !== undefined)
             toLat = location.coords.latitude;
-        toLong = location.coords.longitude;
+            toLong = location.coords.longitude;
         my_map(toLat, toLong)
     }, function () {
         my_map(toLat, toLong);
     });
+
+    //helpers
+    function secondsToHms(d) {
+        d = Number(d);
+        var h = Math.floor(d / 3600);
+        var m = Math.floor(d % 3600 / 60);
+        var s = Math.floor(d % 3600 % 60);
+
+        var hDisplay = h > 0 ? h + (h == 1 ? " hour " : " hours, ") : "";
+        var mDisplay = m > 0 ? m + (m == 1 ? " minute " : " minutes, ") : "";
+        var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+        //return hDisplay + mDisplay + sDisplay;
+        return hDisplay + mDisplay;
+    }
+
+    var tt;
+    function finding_text_timer() {
+
+         tt = setTimeout(function(){
+            var dateVar = new Date();
+            var time_str = dateVar.getTime().toString();
+            var time_char = parseInt(time_str.charAt(time_str.length - 1));
+
+            var extra_dot = "";
+            if (time_char >= 0 && time_char <= 2) {
+                extra_dot = ".";
+            } else if (time_char >= 3 && time_char <= 6) {
+                extra_dot = "..";
+            } else {
+                extra_dot = "...";
+            }
+            routing_div.innerHTML = "Finding the best route for you "+extra_dot;
+        },333);
+
+    }
+
+    function finding_text_timer_stop() {
+        clearInterval(tt);
+    }
 
 
 </script>
