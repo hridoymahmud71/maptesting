@@ -107,10 +107,11 @@
                 L.latLng(fromLat, fromLong),
                 L.latLng(toLat, toLong)
             ],
-            routeWhileDragging: true,
             show: true,
             autoRoute: true,
-            routeWhileDragging: true
+            draggableWaypoints : false,
+            routeWhileDragging: false,
+            addWaypoints : false
         })
             .on('routingstart', function (e) {
 
@@ -156,7 +157,7 @@
             });*/
 
             L.DomEvent.on(destBtn, 'click', function () {
-                L.Routing.control.spliceWaypoints(L.Routing.control.getWaypoints().length - 1, 1, e.latlng);
+                control.spliceWaypoints(control.getWaypoints().length - 1, 1, e.latlng);
                 map.closePopup();
             });
 
