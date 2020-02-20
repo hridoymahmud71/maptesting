@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <title>The HTML5 Herald</title>
     <meta name="description" content="The HTML5 Herald">
     <meta name="author" content="SitePoint">
@@ -55,7 +55,12 @@
 </head>
 
 <body class="bg">
-
+    <!-- The electron div below is only for windows app -->
+<div electron style="display: block;margin: 10px;padding: 10px;">
+    We are using node <script>document.write(process.versions.node)</script>,
+    Chrome <script>document.write(process.versions.chrome)</script>,
+    and Electron <script>document.write(process.versions.electron)</script>.
+</div>
 <div class="card">
     <div id="routing"></div>
     <div id="map" class="map"><img src="images/mapholderbg.png" alt="Map Image"></div>

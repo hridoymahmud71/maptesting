@@ -1,0 +1,23 @@
+{
+  "name": "maptesting",
+  "version": "1.0.0",
+  "description": "its a dummy routing app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron  .",
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hridoymahmud71/maptesting.git"
+  },
+  "author": "Mahmudur Rahman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hridoymahmud71/maptesting/issues"
+  },
+  "homepage": "https://github.com/hridoymahmud71/maptesting#readme",
+  "devDependencies": {
+    "electron": "^8.0.1"
+  }
+}
